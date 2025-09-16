@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowRight, Upload, Target, FileText, Brain } from "lucide-react";
+import DocumentUpload from "./DocumentUpload";
 
 const CareerForm = ({ onSubmit }: { onSubmit: (data: any) => void }) => {
   const [formData, setFormData] = useState({
@@ -99,22 +100,28 @@ const CareerForm = ({ onSubmit }: { onSubmit: (data: any) => void }) => {
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="resumeText" className="flex items-center">
+                <div className="space-y-4">
+                  <Label className="flex items-center">
                     <Upload className="w-4 h-4 mr-2 text-primary" />
-                    Resume Content
+                    Resume Upload
                   </Label>
-                  <Textarea
-                    id="resumeText"
-                    placeholder="Paste your complete resume text here for ATS analysis..."
-                    value={formData.resumeText}
-                    onChange={(e) => setFormData({ ...formData, resumeText: e.target.value })}
-                    className="min-h-[200px]"
-                    required
+                  
+                  <DocumentUpload 
+                    onFileUpload={(text) => setFormData({ ...formData, resumeText: text })}
+                    uploadedFileName={formData.resumeText ? "Uploaded Resume" : undefined}
                   />
-                  <p className="text-sm text-muted-foreground">
-                    Copy and paste your entire resume content for comprehensive ATS analysis
-                  </p>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="resumeText">Or paste resume content manually</Label>
+                    <Textarea
+                      id="resumeText"
+                      placeholder="Paste your complete resume text here for ATS analysis..."
+                      value={formData.resumeText}
+                      onChange={(e) => setFormData({ ...formData, resumeText: e.target.value })}
+                      className="min-h-[150px]"
+                      required
+                    />
+                  </div>
                 </div>
 
                 <Button 
