@@ -1,12 +1,35 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from "react";
+import Header from "@/components/Header";
+import HeroSection from "@/components/HeroSection";
+import CareerForm from "@/components/CareerForm";
+import RoadmapResults from "@/components/RoadmapResults";
 
 const Index = () => {
+  const [showResults, setShowResults] = useState(false);
+  const [formData, setFormData] = useState(null);
+
+  const handleFormSubmit = (data: any) => {
+    setFormData(data);
+    setShowResults(true);
+    // Smooth scroll to results
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 100);
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-background">
+      <Header />
+      {!showResults ? (
+        <>
+          <HeroSection />
+          <CareerForm onSubmit={handleFormSubmit} />
+        </>
+      ) : (
+        <div className="pt-20">
+          <RoadmapResults formData={formData} />
+        </div>
+      )}
     </div>
   );
 };
