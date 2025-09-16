@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Upload, FileText, X, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { extractTextFromFile } from "@/lib/skillsExtractor";
 
 interface DocumentUploadProps {
   onFileUpload: (text: string) => void;
@@ -44,43 +45,23 @@ const DocumentUpload = ({ onFileUpload, uploadedFileName }: DocumentUploadProps)
     setFileName(file.name);
 
     try {
-      let text = "";
+      const text = await extractTextFromFile(file);
+      onFileUpload(text);
       
-      if (fileExtension === '.txt') {
-        text = await file.text();
-      } else if (fileExtension === '.pdf') {
-        // For PDF files, we'll use a simple text extraction
-        // In a real app, you'd use a proper PDF parser
-        const formData = new FormData();
-        formData.append('file', file);
-        
-        // Simulate PDF text extraction
-        text = "PDF content would be extracted here. For now, please copy and paste your resume text manually.";
-        
+      if (text.includes("Please paste your resume text manually")) {
         toast({
-          title: "PDF Upload",
-          description: "PDF parsing is not yet implemented. Please copy and paste your resume text manually.",
+          title: "File format not fully supported",
+          description: "Please copy and paste your resume text manually for best results.",
           variant: "default",
         });
       } else {
-        // For DOC/DOCX files
-        text = "Document content would be extracted here. For now, please copy and paste your resume text manually.";
-        
         toast({
-          title: "Document Upload",
-          description: "Document parsing is not yet implemented. Please copy and paste your resume text manually.",
-          variant: "default",
+          title: "File uploaded successfully",
+          description: `${file.name} has been processed and text extracted`,
         });
       }
-
-      onFileUpload(text);
-      
-      toast({
-        title: "File uploaded successfully",
-        description: `${file.name} has been processed`,
-      });
     } catch (error) {
-      console.error('Error processing file:', error);
+      console.error("Error processing file:", error);
       toast({
         title: "Error processing file",
         description: "Please try again or paste your resume text manually",

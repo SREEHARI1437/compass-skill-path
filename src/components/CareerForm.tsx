@@ -5,8 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowRight, Upload, Target, FileText, Brain } from "lucide-react";
+import { ArrowRight, Upload, Target, FileText, Brain, Sparkles } from "lucide-react";
 import DocumentUpload from "./DocumentUpload";
+import { extractSkillsFromText, formatSkillsForDisplay } from "@/lib/skillsExtractor";
 
 const CareerForm = ({ onSubmit }: { onSubmit: (data: any) => void }) => {
   const [formData, setFormData] = useState({
@@ -29,6 +30,19 @@ const CareerForm = ({ onSubmit }: { onSubmit: (data: any) => void }) => {
     "Machine Learning Engineer",
     "Database Administrator"
   ];
+
+  const handleFileUpload = (text: string) => {
+    setFormData({ ...formData, resumeText: text });
+    
+    // Extract skills from the uploaded text
+    if (text && !text.includes("Please paste your resume text manually")) {
+      const extractedSkills = extractSkillsFromText(text);
+      if (extractedSkills.length > 0) {
+        const skillsText = formatSkillsForDisplay(extractedSkills);
+        setFormData(prev => ({ ...prev, currentSkills: skillsText }));
+      }
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,15 +79,19 @@ const CareerForm = ({ onSubmit }: { onSubmit: (data: any) => void }) => {
                     <Label htmlFor="currentSkills" className="flex items-center">
                       <Target className="w-4 h-4 mr-2 text-primary" />
                       Current Skills
+                      <Sparkles className="w-3 h-3 ml-1 text-primary opacity-60" />
                     </Label>
                     <Textarea
                       id="currentSkills"
-                      placeholder="e.g., JavaScript, Python, SQL, React, AWS..."
+                      placeholder="e.g., JavaScript, Python, SQL, React, AWS... (Auto-populated from resume)"
                       value={formData.currentSkills}
                       onChange={(e) => setFormData({ ...formData, currentSkills: e.target.value })}
                       className="min-h-[100px]"
                       required
                     />
+                    <p className="text-xs text-muted-foreground">
+                      💡 Upload your resume to auto-extract your skills
+                    </p>
                   </div>
 
                   <div className="space-y-2">
@@ -107,8 +125,8 @@ const CareerForm = ({ onSubmit }: { onSubmit: (data: any) => void }) => {
                   </Label>
                   
                   <DocumentUpload 
-                    onFileUpload={(text) => setFormData({ ...formData, resumeText: text })}
-                    uploadedFileName={formData.resumeText ? "Uploaded Resume" : undefined}
+                    onFileUpload={handleFileUpload}
+                    uploadedFileName={formData.resumeText && !formData.resumeText.includes("Please paste") ? "Resume Uploaded" : undefined}
                   />
                   
                   <div className="space-y-2">
